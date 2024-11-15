@@ -10,9 +10,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install Docker Compose
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y docker-compose
+        run: sudo apt-get update | sudo apt-get install -y docker-compose
       - name: build the docker image
         run: docker-compose up --build -d
   quality:
