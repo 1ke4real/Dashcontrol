@@ -76,3 +76,29 @@ init-db: ## 🗄️ Initialize Symfony database and install ORM dependencies
 	$(DOCKER_COMPOSE) exec php composer require symfony/orm-pack
 	$(DOCKER_COMPOSE) exec php composer require --dev symfony/maker-bundle
 	make reload
+
+#######################################
+## 🚀 Code Quality
+#######################################
+.PHONY: php-cs-fixer phpstan quality
+
+php-cs-fixer: ## 🛠️ Run PHP-CS-Fixer
+	@echo "Running PHP-CS-Fixer..."
+	$(DOCKER_COMPOSE) exec php vendor/bin/php-cs-fixer fix src --verbose
+
+phpstan: ## 🛠️ Run PHPStan
+	@echo "Running PHPStan..."
+	$(DOCKER_COMPOSE) exec php vendor/bin/phpstan analyse src --level=7
+
+quality:  ## 🛠️ Run all code quality checks
+	make php-cs-fixer
+	make phpstan
+
+#######################################
+## 🧪 Tests
+#######################################
+.PHONY: dbValidate
+
+dbValidate: ## 🧪 Validate database schema
+	@echo "Validating database schema..."
+	$(DOCKER_COMPOSE) exec php bin/console doctrine:schema:validate
