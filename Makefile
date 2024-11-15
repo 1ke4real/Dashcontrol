@@ -84,15 +84,20 @@ init-db: ## 🗄️ Initialize Symfony database and install ORM dependencies
 
 php-cs-fixer: ## 🛠️ Run PHP-CS-Fixer
 	@echo "Running PHP-CS-Fixer..."
-	$(DOCKER_COMPOSE) exec php vendor/bin/php-cs-fixer fix src --verbose
+	$(DOCKER_COMPOSE) exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
 
 phpstan: ## 🛠️ Run PHPStan
 	@echo "Running PHPStan..."
 	$(DOCKER_COMPOSE) exec php vendor/bin/phpstan analyse src --level=7
 
+phpinsights: ## 🛠️ Run PHP Insights
+	@echo "Running PHP Insights..."
+	$(DOCKER_COMPOSE) exec php vendor/bin/phpinsights --no-interaction
+
 quality:  ## 🛠️ Run all code quality checks
 	make php-cs-fixer
 	make phpstan
+	make phpinsights
 
 #######################################
 ## 🧪 Tests
