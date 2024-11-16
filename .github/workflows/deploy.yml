@@ -25,6 +25,8 @@ jobs:
           # Variables
           REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
+          
+          git config --global --add safe.directory /var/www/Dashcontrol
 
           # Clone or update the repository
           if [ ! -d "$PROJECT_DIR" ]; then
