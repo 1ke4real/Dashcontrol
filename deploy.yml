@@ -10,8 +10,23 @@
         dest: '/var/www/Dashcontrol'
         version: 'master'
 
-    - name: Nettoyer les anciennes images Docker
-      command: make prune
+    - name: Nettoyer les ressources Docker inutilisées
+      command: docker system prune -f
+
+    - name: Nettoyer les volumes Docker inutilisés
+      command: docker volume prune -f
+
+    - name: Nettoyer les réseaux Docker inutilisés
+      command: docker network prune -f
+
+    - name: Supprimer les volumes spécifiques
+      shell: |
+        volumes=$(docker volume ls -q)
+        if [ -n "$volumes" ]; then
+          docker volume rm $volumes
+        else
+          echo "No Docker volumes to remove."
+        fi
 
     - name: Démarrer les conteneurs Docker
       command: make build
