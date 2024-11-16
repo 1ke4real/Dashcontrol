@@ -23,6 +23,6 @@ jobs:
       - name: Run Ansible Playbook
         run: ansible-playbook -i inventory.ini deploy.yml
         env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
+          ANSIBLE_BECOME_PASS: ${{ secrets.VPS_SUDO_PASSWORD }}
       - name: Checkout repository
         uses: actions/checkout@v4
