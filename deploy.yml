@@ -11,13 +11,7 @@
         version: master
 
     - name: Nettoyer les ressources Docker inutilisées
-      command: docker system prune -f
-
-    - name: Nettoyer les volumes Docker inutilisés
-      command: docker volume prune -f
-
-    - name: Nettoyer les réseaux Docker inutilisés
-      command: docker network prune -f
+      command: make prune
 
     - name: Vérifier que le fichier docker-compose.yml existe
       stat:
