@@ -19,18 +19,9 @@
     - name: Nettoyer les réseaux Docker inutilisés
       command: docker network prune -f
 
-    - name: Supprimer les volumes spécifiques
-      shell: |
-        volumes=$(docker volume ls -q)
-        if [ -n "$volumes" ]; then
-          docker volume rm $volumes
-        else
-          echo "No Docker volumes to remove."
-        fi
-
     - name: Démarrer les conteneurs Docker
-      command: make build
+      command: docker-compose up --build -d
 
     - name: Installer les dépendances composer
-      command: make composer-install
+      command: docker compose exec php composer install
 
