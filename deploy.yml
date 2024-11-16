@@ -1,0 +1,21 @@
+---
+- name: Déployer l'application sur le serveur de production
+  hosts: production
+  become: true
+
+  tasks:
+    - name: Mettre à jour le code source
+      git:
+        repo: 'git@github.com:1ke4real/Dashcontrol.git'
+        dest: '/var/www/Dashcontrol'
+        version: 'master'
+
+    - name: Nettoyer les anciennes images Docker
+      command: make prune
+
+    - name: Démarrer les conteneurs Docker
+      command: make build
+
+    - name: Installer les dépendances composer
+      command: make composer-install
+

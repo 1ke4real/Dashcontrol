@@ -26,11 +26,3 @@ jobs:
           ANSIBLE_HOST_KEY_CHECKING: "False"
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install Docker Compose
-        run: |
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
-      - name: build the docker image
-        run: docker-compose up --build -d
-      - name: build the docker image
-        run: docker-compose up --build -d
