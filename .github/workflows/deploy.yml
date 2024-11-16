@@ -27,7 +27,7 @@ jobs:
           PROJECT_DIR="/var/www/Dashcontrol"
           
           git config --global --add safe.directory /var/www/Dashcontrol
-
+        
           # Clone or update the repository
           if [ ! -d "$PROJECT_DIR" ]; then
             git clone $REPO_URL $PROJECT_DIR
@@ -35,9 +35,9 @@ jobs:
             cd $PROJECT_DIR
             git pull origin master
           fi
-
           # Stop and clean existing containers
           cd $PROJECT_DIR
+          git pull origin master
           docker-compose down
           docker system prune -f
 
