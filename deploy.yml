@@ -6,7 +6,7 @@
   tasks:
     - name: Mettre à jour le code source
       git:
-        repo: 'git@github.com:1ke4real/Dashcontrol.git'
+        repo: 'https://github.com/1ke4real/Dashcontrol.git'
         dest: '/var/www/Dashcontrol'
         version: 'master'
 
