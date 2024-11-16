@@ -33,6 +33,7 @@ jobs:
             git clone $REPO_URL $PROJECT_DIR
           else
             cd $PROJECT_DIR
+        
             git pull origin master
           fi
           # Stop and clean existing containers
