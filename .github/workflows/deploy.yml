@@ -1,0 +1,36 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install ansible -y
+      - name: Add SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 185.215.164.253 >> ~/.ssh/known_hosts
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i inventory.ini deploy.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Docker Compose
+        run: |
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+      - name: build the docker image
+        run: docker-compose up --build -d
+      - name: build the docker image
+        run: docker-compose up --build -d
