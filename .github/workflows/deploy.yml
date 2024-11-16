@@ -4,25 +4,44 @@ on:
   push:
     branches:
       - master
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install Ansible
-        run: |
-          sudo apt update
-          sudo apt install ansible -y
+
       - name: Add SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 185.215.164.253 >> ~/.ssh/known_hosts
-      - name: Run Ansible Playbook
-        run: ansible-playbook -i inventory.ini deploy.yml
-        env:
-          ANSIBLE_BECOME_PASS: ${{ secrets.VPS_SUDO_PASSWORD }}
-      - name: Checkout repository
-        uses: actions/checkout@v4
+
+      - name: Deploy application via SSH
+        run: |
+          ssh deploy@185.215.164.253 << 'EOF'
+          # Variables
+          REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
+          PROJECT_DIR="/var/www/Dashcontrol"
+
+          # Clone or update the repository
+          if [ ! -d "$PROJECT_DIR" ]; then
+            git clone $REPO_URL $PROJECT_DIR
+          else
+            cd $PROJECT_DIR
+            git pull origin master
+          fi
+
+          # Stop and clean existing containers
+          cd $PROJECT_DIR
+          docker-compose down
+          docker system prune -f
+
+          # Build and start containers
+          docker-compose up --build -d
+
+          # Install Composer dependencies
+          docker compose exec php composer install
+          EOF
