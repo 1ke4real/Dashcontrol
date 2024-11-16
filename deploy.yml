@@ -24,6 +24,12 @@
         path: /var/www/Dashcontrol/docker-compose.yml
       register: docker_compose_file
 
+    - name: Arrêter et supprimer les conteneurs existants
+      command: docker-compose down
+      args:
+        chdir: /var/www/Dashcontrol
+      when: docker_compose_file.stat.exists
+
     - name: Démarrer les conteneurs Docker
       command: docker-compose up --build -d
       args:
