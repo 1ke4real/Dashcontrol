@@ -10,26 +10,24 @@
         dest: /var/www/Dashcontrol
         version: master
 
-    - name: Nettoyer les ressources Docker inutilisées
-      command: make prune
-      args:
-            chdir: /var/www/Dashcontrol
-    - name: Vérifier que le fichier docker-compose.yml existe
-      stat:
-        path: /var/www/Dashcontrol/docker-compose.yml
-      register: docker_compose_file
+    - name: Supprimer les conteneurs conflictuels (php)
+      shell: |
+        if [ $(docker ps -aq -f name=php) ]; then
+          docker rm -f php
+        fi
 
     - name: Arrêter et supprimer les conteneurs existants
       command: docker-compose down
       args:
         chdir: /var/www/Dashcontrol
-      when: docker_compose_file.stat.exists
+
+    - name: Nettoyer les ressources Docker inutilisées
+      command: docker system prune -f
 
     - name: Démarrer les conteneurs Docker
       command: docker-compose up --build -d
       args:
         chdir: /var/www/Dashcontrol
-      when: docker_compose_file.stat.exists
 
     - name: Installer les dépendances composer
       command: docker compose exec php composer install

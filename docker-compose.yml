@@ -1,6 +1,6 @@
 services:
   nginx:
-    container_name: nginx
+    container_name: dashcontrol-nginx
     build:
         context: .
         dockerfile: ./docker/nginx/Dockerfile
@@ -14,7 +14,7 @@ services:
     networks:
         - app-network
   php:
-    container_name: php
+    container_name: dashcontrol-php
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
