@@ -107,3 +107,16 @@ quality:  ## 🛠️ Run all code quality checks
 dbValidate: ## 🧪 Validate database schema
 	@echo "Validating database schema..."
 	$(DOCKER_COMPOSE) exec php bin/console doctrine:schema:validate
+
+#######################################
+## 📦 Dependencies
+#######################################
+.PHONY: composer-install composer-update
+
+composer-install: ## 📦 Install PHP dependencies
+	@echo "Installing PHP dependencies..."
+	$(DOCKER_COMPOSE) exec php composer install
+
+composer-update: ## 📦 Update PHP dependencies
+	@echo "Updating PHP dependencies..."
+	$(DOCKER_COMPOSE) exec php composer update
