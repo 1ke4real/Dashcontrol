@@ -14,11 +14,23 @@ jobs:
           curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           chmod +x /usr/local/bin/docker-compose
       - name: build the docker image
-        run: docker-compose up --build -d
+        run: docker-compose up --build -d .
+            docker save my-image:latest > my-image.tar
+      - name: Upload the image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-image
+          path: my-image.tar
   quality:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: my-image
+      - name : Load the image
+        run: docker load < my-image.tar
       - name: php cs fixer
         run: docker-compose exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
       - name: phpstan
@@ -29,5 +41,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: my-image
+      - name : Load the image
+        run: docker load < my-image.tar
       - name: database shemat validation
         run: docker-compose exec php bin/console doctrine:schema:validate
