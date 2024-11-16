@@ -18,10 +18,19 @@
 
     - name: Nettoyer les réseaux Docker inutilisés
       command: docker network prune -f
+    - name: Vérifier que le fichier docker-compose.yml existe
+      stat:
+        path: /var/www/Dashcontrol/docker-compose.yml
+        register: docker_compose_file
 
     - name: Démarrer les conteneurs Docker
       command: docker-compose up --build -d
+      args:
+        chdir: /var/www/Dashcontrol
+      when: docker_compose_file.stat.exists
 
     - name: Installer les dépendances composer
       command: docker compose exec php composer install
+      args:
+        chdir: /var/www/Dashcontrol
 
