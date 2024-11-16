@@ -12,7 +12,8 @@
 
     - name: Nettoyer les ressources Docker inutilisées
       command: make prune
-
+      args:
+            chdir: /var/www/Dashcontrol
     - name: Vérifier que le fichier docker-compose.yml existe
       stat:
         path: /var/www/Dashcontrol/docker-compose.yml
