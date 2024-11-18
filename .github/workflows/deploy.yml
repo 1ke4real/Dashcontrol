@@ -12,6 +12,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Vous pouvez ajuster selon la version Node.js requise
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build application
+        run: yarn build
+
       - name: Add SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -25,31 +37,42 @@ jobs:
           # Variables
           REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
-          
+          BUILD_DIR="build" # Répertoire de build local
+
           git config --global --add safe.directory /var/www/Dashcontrol
-          
+
           # Clone or update the repository
           if [ ! -d "$PROJECT_DIR" ]; then
             git clone $REPO_URL $PROJECT_DIR
           else
             cd $PROJECT_DIR
-          
             git pull origin master
           fi
+
           # Stop and clean existing containers
           cd $PROJECT_DIR
-          git pull origin master
           docker system prune -f
           docker volume prune -f
           docker network prune -f
-          @volumes=$(docker volume ls -q); \
-          if [ -n "$$volumes" ]; then \
+          volumes=$(docker volume ls -q); \
+          if [ -n "$volumes" ]; then \
           docker-compose volume rm $volumes; \
           else \
           echo "No Docker volumes to remove."; \
           fi
 
+          # Copy build files to server
+          rm -rf $PROJECT_DIR/$BUILD_DIR
+          mkdir -p $PROJECT_DIR/$BUILD_DIR
+          exit # exit SSH before copying
+          EOF
+
+          # Use rsync to copy the build directory
+          rsync -avz --delete ./build/ deploy@185.215.164.253:/var/www/Dashcontrol/build/
+
+          ssh deploy@185.215.164.253 << 'EOF'
           # Build and start containers
+          cd $PROJECT_DIR
           docker-compose up --build -d
 
           # Install Composer dependencies
