@@ -50,7 +50,6 @@ jobs:
             echo "Erreur : le dossier $BUILD_DIR n'existe pas. Vérifiez votre commande yarn build."
             exit 1
           fi
-          EOF
           # Cloner ou mettre à jour le dépôt sur le serveur
           ssh deploy@185.215.164.253 << 'EOF'
           # Synchroniser les fichiers construits
