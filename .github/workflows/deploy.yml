@@ -37,7 +37,7 @@ jobs:
           # Variables
           REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
-          BUILD_DIR="build" # Répertoire de build local
+          BUILD_DIR="project/build" # Répertoire de build local
 
           git config --global --add safe.directory /var/www/Dashcontrol
 
@@ -68,7 +68,7 @@ jobs:
           EOF
 
           # Use rsync to copy the build directory
-          rsync -avz --delete ./build/ deploy@185.215.164.253:/var/www/Dashcontrol/build/
+          rsync -avz --delete ./project/build/ deploy@185.215.164.253:/var/www/Dashcontrol/build/
 
           ssh deploy@185.215.164.253 << 'EOF'
           # Build and start containers
