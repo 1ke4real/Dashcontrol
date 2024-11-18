@@ -9,9 +9,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Étape 1 : Checkout du dépôt
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Étape 2 : Installer la dernière version stable de Node.js et Yarn
+      - name: Setup Node.js and Yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*' # Utilise la dernière version LTS (long-term support)
+          cache: 'yarn'         # Active la mise en cache pour Yarn
+
+      # Étape 3 : Installer les dépendances avec Yarn
+      - name: Install dependencies with Yarn
+        run: yarn install
+
+      # Étape 4 : Construire les fichiers frontend avec Yarn
+      - name: Build frontend assets
+        run: yarn build # Commande pour construire vos fichiers (par exemple avec Vite, Webpack, etc.)
+
+      # Étape 5 : Ajouter la clé SSH pour le déploiement
       - name: Add SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -19,39 +36,44 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 185.215.164.253 >> ~/.ssh/known_hosts
 
+      # Étape 6 : Déployer l'application via SSH
       - name: Deploy application via SSH
         run: |
           ssh deploy@185.215.164.253 << 'EOF'
           # Variables
           REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
-          
+
+          # Configure Git
           git config --global --add safe.directory /var/www/Dashcontrol
-        
-          # Clone or update the repository
+
+          # Clone ou met à jour le dépôt
           if [ ! -d "$PROJECT_DIR" ]; then
             git clone $REPO_URL $PROJECT_DIR
           else
             cd $PROJECT_DIR
-        
             git pull origin master
           fi
-          # Stop and clean existing containers
+
+          # Nettoyer les anciens conteneurs et volumes Docker
           cd $PROJECT_DIR
-          git pull origin master
           docker system prune -f
           docker volume prune -f
           docker network prune -f
-          @volumes=$(docker volume ls -q); \
-          if [ -n "$$volumes" ]; then \
-          docker-compose volume rm $volumes; \
-          else \
-          echo "No Docker volumes to remove."; \
+          volumes=$(docker volume ls -q)
+          if [ -n "$volumes" ]; then
+            docker volume rm $volumes
+          else
+            echo "No Docker volumes to remove."
           fi
 
-          # Build and start containers
+          # Construire et démarrer les conteneurs Docker
           docker-compose up --build -d
 
-          # Install Composer dependencies
+          # Installer les dépendances Composer
           docker compose exec php composer install
+
+          # Copier les fichiers frontend générés dans le conteneur
+          docker compose exec php sh -c "rm -rf public/build && mkdir -p public/build"
+          docker cp dist/. php:/var/www/Dashcontrol/public/build # Copier les fichiers générés par Vite/Webpack
           EOF

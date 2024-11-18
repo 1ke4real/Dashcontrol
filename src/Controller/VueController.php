@@ -8,11 +8,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class TestController extends AbstractController
+class VueController extends AbstractController
 {
-    #[Route('/test')]
+    #[Route(path: '/{route}', name: 'vue', requirements: ['route' => '.*'])]
     public function index(): Response
     {
-        return $this->render('test/index.html.twig');
+        return $this->render('base.html.twig');
     }
 }
