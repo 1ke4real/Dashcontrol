@@ -37,7 +37,7 @@ jobs:
           # Variables
           REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
-          BUILD_DIR="project/build" # Répertoire de build local
+          BUILD_DIR="/project/build" # Répertoire de build local
 
           git config --global --add safe.directory /var/www/Dashcontrol
 
@@ -76,5 +76,5 @@ jobs:
           docker-compose up --build -d
 
           # Install Composer dependencies
-          docker compose exec php composer install
+          docker-compose exec php composer install
           EOF
