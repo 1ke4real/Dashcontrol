@@ -28,11 +28,11 @@ jobs:
       - name: build the docker image
         run: docker-compose up --build -d
       - name: php cs fixer
-        run: docker-compose exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
+        run: docker-compose exec -T php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
       - name: phpstan
-        run: docker-compose exec php vendor/bin/phpstan analyse src --level=7
+        run: docker-compose exec -T php vendor/bin/phpstan analyse src --level=7
       - name: phpinsights
-        run: docker-compose exec php vendor/bin/phpinsights
+        run: docker-compose exec -T php vendor/bin/phpinsights
 #  test-database:
 #    runs-on: ubuntu-latest
 #    needs: build
