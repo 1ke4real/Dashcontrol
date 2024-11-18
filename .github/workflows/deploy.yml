@@ -73,7 +73,4 @@ jobs:
           # Installer les dépendances Composer
           docker compose exec php composer install
 
-          # Copier les fichiers frontend générés dans le conteneur
-          docker compose exec php sh -c "rm -rf public/build && mkdir -p public/build"
-          docker cp dist/. php:/var/www/Dashcontrol/public/build # Copier les fichiers générés par Vite/Webpack
           EOF
