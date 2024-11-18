@@ -37,7 +37,7 @@ jobs:
           # Variables
           REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
-          BUILD_DIR="$PROJECT_DIR/build"
+          BUILD_DIR="$PROJECT_DIR/public/build"
 
           git config --global --add safe.directory $PROJECT_DIR
 
@@ -61,7 +61,7 @@ jobs:
           EOF
 
       - name: Copy build files to server
-        run: rsync -avz --delete ./build/ deploy@185.215.164.253:/var/www/Dashcontrol/build/
+        run: rsync -avz --delete ./public/build/ deploy@185.215.164.253:/var/www/Dashcontrol/public/build/
 
       - name: Finalize deployment
         run: |
