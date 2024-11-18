@@ -40,7 +40,7 @@ jobs:
       - name: Deploy built assets and application
         run: |
           # Chemins locaux et distants
-          BUILD_DIR="./dist" 
+          BUILD_DIR="./public/build" 
           REMOTE_BUILD_DIR="/var/www/Dashcontrol/public/build"
           PROJECT_DIR="/var/www/Dashcontrol"
 

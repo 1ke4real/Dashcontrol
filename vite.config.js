@@ -7,6 +7,7 @@ export default defineConfig({
         symfonyPlugin(),
     ],
     build: {
+        outDir: "public/build",
         rollupOptions: {
             input: {
                 app: "./assets/js/app.js"
