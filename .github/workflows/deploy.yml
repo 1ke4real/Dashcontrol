@@ -45,7 +45,6 @@ jobs:
           BUILD_DIR="./public/build"
           REMOTE_BUILD_DIR="/var/www/Dashcontrol/public/build"
           PROJECT_DIR="/var/www/Dashcontrol"
-          
           # Vérification que les fichiers de build existent
           if [ ! -d "$BUILD_DIR" ]; then
             echo "Erreur : le dossier $BUILD_DIR n'existe pas. Vérifiez votre commande yarn build."
@@ -54,14 +53,6 @@ jobs:
 
           # Cloner ou mettre à jour le dépôt sur le serveur
           ssh deploy@185.215.164.253 << 'EOF'
-          if [ ! -d "$PROJECT_DIR" ]; then
-            git clone $REPO_URL $PROJECT_DIR
-          else
-            cd $PROJECT_DIR
-            git pull origin master
-          fi
-          EOF
-
           # Synchroniser les fichiers construits
           rsync -avz --delete $BUILD_DIR/ deploy@185.215.164.253:$REMOTE_BUILD_DIR
 
