@@ -6,14 +6,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:27.3.1-dind
+        privileged: true
+        options: --privileged
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install Docker Compose
+
+      - name: Set up Docker CLI
         run: |
-          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
-      - name: build the docker image
+          export DOCKER_HOST=tcp://localhost:2375
+          export DOCKER_TLS_VERIFY=0
+
+      - name: Build Docker Image
+        run: docker build -t dashcontrol .
+
+      - name: Run Docker Compose
         run: docker-compose up --build -d
 #  quality:
 #    runs-on: ubuntu-latest
