@@ -6,44 +6,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:27.3.1-dind
-        privileged: true
-        options: --privileged
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Docker CLI
+      - name: Install Docker Compose
         run: |
-          export DOCKER_HOST=tcp://localhost:2375
-          export DOCKER_TLS_VERIFY=0
-
-      - name: Build Docker Image
-        run: docker build -t dashcontrol .
-
-      - name: Run Docker Compose
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+      - name: build the docker image
         run: docker-compose up --build -d
-#  quality:
-#    runs-on: ubuntu-latest
-#    needs: build
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v4
-#      - name: Install Docker Compose
-#        run: |
-#          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#          chmod +x /usr/local/bin/docker-compose
-#      - name: build the docker image
-#        run: docker-compose up --build -d
-#      - name: php cs fixer
-#        run: docker-compose exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
-#      - name: phpstan
-#        run: docker-compose exec php vendor/bin/phpstan analyse src --level=7
-#      - name: phpinsights
-#        run: docker-compose exec php vendor/bin/phpinsights
+  quality:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Docker Compose
+        run: |
+          curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+      - name: build the docker image
+        run: docker-compose up --build -d
+      - name: php cs fixer
+        run: docker-compose exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
+      - name: phpstan
+        run: docker-compose exec php vendor/bin/phpstan analyse src --level=7
+      - name: phpinsights
+        run: docker-compose exec php vendor/bin/phpinsights
 #  test-database:
 #    runs-on: ubuntu-latest
 #    needs: build
