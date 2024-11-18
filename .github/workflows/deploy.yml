@@ -9,26 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Étape 1 : Checkout du dépôt
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Étape 2 : Installer Node.js 20 et Yarn
-      - name: Setup Node.js and Yarn
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'  # Utiliser Node.js 20
-          cache: 'yarn'       # Active la mise en cache pour Yarn
-
-      # Étape 3 : Installer les dépendances avec Yarn
-      - name: Install dependencies with Yarn
-        run: yarn install
-
-      # Étape 4 : Construire les fichiers frontend avec Yarn
-      - name: Build frontend assets
-        run: yarn build # Commande pour construire vos fichiers (par exemple avec Vite, Webpack, etc.)
-
-      # Étape 5 : Ajouter la clé SSH pour le déploiement
       - name: Add SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -36,37 +19,39 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 185.215.164.253 >> ~/.ssh/known_hosts
 
-      # Étape 6 : Pousser les fichiers construits sur le serveur
-      - name: Deploy built assets and application
-        env:
-          REPO_URL: https://github.com/1ke4real/Dashcontrol.git
+      - name: Deploy application via SSH
         run: |
-          # Chemins locaux et distants
-          BUILD_DIR="./public/build"
-          REMOTE_BUILD_DIR="/var/www/Dashcontrol/public/build"
+          ssh deploy@185.215.164.253 << 'EOF'
+          # Variables
+          REPO_URL="https://github.com/1ke4real/Dashcontrol.git"
           PROJECT_DIR="/var/www/Dashcontrol"
-          # Vérification que les fichiers de build existent
-          if [ ! -d "$BUILD_DIR" ]; then
-            echo "Erreur : le dossier $BUILD_DIR n'existe pas. Vérifiez votre commande yarn build."
-            exit 1
+          
+          git config --global --add safe.directory /var/www/Dashcontrol
+          
+          # Clone or update the repository
+          if [ ! -d "$PROJECT_DIR" ]; then
+            git clone $REPO_URL $PROJECT_DIR
+          else
+            cd $PROJECT_DIR
+          
+            git pull origin master
           fi
-          # Cloner ou mettre à jour le dépôt sur le serveur
-          ssh deploy@185.215.164.253 << 'EOF'
-          # Synchroniser les fichiers construits
-          rsync -avz --delete $BUILD_DIR/ deploy@185.215.164.253:$REMOTE_BUILD_DIR
-
-          # Exécuter le script de déploiement sur le serveur
-          ssh deploy@185.215.164.253 << 'EOF'
+          # Stop and clean existing containers
           cd $PROJECT_DIR
-
-          # Nettoyer les anciens conteneurs et volumes Docker
+          git pull origin master
           docker system prune -f
           docker volume prune -f
           docker network prune -f
+          @volumes=$(docker volume ls -q); \
+          if [ -n "$$volumes" ]; then \
+          docker-compose volume rm $volumes; \
+          else \
+          echo "No Docker volumes to remove."; \
+          fi
 
-          # Construire et démarrer les conteneurs Docker
+          # Build and start containers
           docker-compose up --build -d
 
-          # Installer les dépendances Composer
+          # Install Composer dependencies
           docker compose exec php composer install
           EOF
