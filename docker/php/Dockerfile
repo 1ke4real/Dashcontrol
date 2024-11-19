@@ -1,18 +1,26 @@
 FROM php:8.2-fpm
-LABEL maintainer="Mike Leman"
-# Met à jour les paquets et installe les dépendances nécessaires pour GD
-RUN apt-get update && apt-get upgrade
-# Installe les dépendances nécessaires pour Composer et Symfony
-RUN apt-get update && apt-get install -y \
-    zip unzip git libzip-dev \
-    && docker-php-ext-install zip
 
-# Install Composer \
+LABEL maintainer="Mike Leman"
+
+# Met à jour les paquets et installe les dépendances nécessaires
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libzip-dev \
+    zip unzip git \
+    iputils-ping \
+    && docker-php-ext-install \
+    pdo_pgsql \
+    zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Installe Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Exécute la commande de création de projet uniquement si le répertoire est vide
-RUN echo "Current directory:" && pwd && echo "Contents:" && ls -la
+# Définit le répertoire de travail par défaut
+WORKDIR /var/www
 
-
-CMD ["php-fpm"]
+# Expose le port PHP-FPM
 EXPOSE 9000
+
+# Commande par défaut
+CMD ["php-fpm"]

@@ -6,7 +6,7 @@
 
 PROJECT_NAME = php-nginx
 DOCKER_COMPOSE = docker-compose --project-name $(PROJECT_NAME)
-
+DOCKER_COMPOSE_EXEC_SYMFONY = $(DOCKER_COMPOSE) exec php bin/console
 #######################################
 ## 📖 Help
 #######################################
@@ -84,7 +84,7 @@ init-db: ## 🗄️ Initialize Symfony database and install ORM dependencies
 
 php-cs-fixer: ## 🛠️ Run PHP-CS-Fixer
 	@echo "Running PHP-CS-Fixer..."
-	$(DOCKER_COMPOSE) exec php vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --verbose --diff
+	$(DOCKER_COMPOSE) exec php vendor/bin/php-cs-fixer fix --using-cache=no --verbose --diff --allow-risky=yes
 
 phpstan: ## 🛠️ Run PHPStan
 	@echo "Running PHPStan..."
@@ -120,3 +120,33 @@ composer-install: ## 📦 Install PHP dependencies
 composer-update: ## 📦 Update PHP dependencies
 	@echo "Updating PHP dependencies..."
 	$(DOCKER_COMPOSE) exec php composer update
+
+
+
+#######################################
+## 📦 database
+#######################################
+
+
+database-drop: # attention ne peux pas marcher tout seul car il faut stopper supervisor ( utilise database-reset)
+	@echo "Drop database..."
+	$(DOCKER_COMPOSE_EXEC_SYMFONY) doctrine:database:drop --if-exists --force
+
+
+database-create:
+	@echo "Create database..."
+	$(DOCKER_COMPOSE_EXEC_SYMFONY) doctrine:database:create --if-not-exists
+
+database-migrations:
+	@echo "Apply migration..."
+	$(DOCKER_COMPOSE_EXEC_SYMFONY) doctrine:migrations:migrate --no-interaction --allow-no-migration
+
+database-new-migration:
+	@echo "Generate new migration..."
+	$(DOCKER_COMPOSE_EXEC_SYMFONY) doctrine:migrations:diff
+
+database-reset:
+	@echo "Reset database..."
+	make database-drop
+	make database-create
+	make database-migrations
