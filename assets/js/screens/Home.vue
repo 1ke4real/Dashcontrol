@@ -11,10 +11,10 @@
                             Se connecter
                         </h1>
                         <form>
-                            <InputField label="Email" type="email" placeHolder="test@test.com"/>
-                            <InputField label="Mot de passe" type="password" place-holder="**********"/>
+                            <InputField v-model:value="auth.username" label="Nom d'utilisateur" type="text" placeHolder="John Doe" :error="error" :errorMessage="errorMessage"/>
+                            <InputField v-model:value="auth.password" label="Mot de passe" type="password" place-holder="**********" :error="error" :errorMessage="errorMessage"/>
                             <div class="flex justify-center">
-                                <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Connexion</button>
+                                <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" @click="login()">Connexion</button>
 
                             </div>
                         </form>
@@ -26,23 +26,37 @@
 
 <script>
 import InputField from '../components/InputField.vue'
+import {CallApi} from '../../ts/CallApi'
 
 export default {
     name: 'Home',
     components: {InputField},
     data() {
         return {
-
+            auth:{
+                username:'',
+                password:''
+            },
+            error: false,
+            errorMessage: ''
         }
     },
     watch: {
 
     },
     async mounted() {
-
     },
     methods: {
-
+        async login() {
+            const request = await CallApi.post('/auth/login', this.auth)
+            if (request.status === 200) {
+                this.$router.push('/dashboard')
+            } else {
+                console.log(request)
+                this.error = true
+                this.errorMessage = request.data.error
+            }
+        }
     },
 }
 </script>

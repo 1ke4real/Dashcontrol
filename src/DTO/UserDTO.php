@@ -10,7 +10,13 @@ class UserDTO
 {
     public function __construct(
         private string $email,
+        private string $username,
     ) {
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
     }
 
     public function getEmail(): string
@@ -22,6 +28,7 @@ class UserDTO
     {
         return new self(
             $user->getEmail(),
+            $user->getUsername(),
         );
     }
 }

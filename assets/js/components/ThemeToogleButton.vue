@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed top-4 right-4">
+    <div>
         <button
             id="theme-toggle"
             type="button"

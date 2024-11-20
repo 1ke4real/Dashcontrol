@@ -9,5 +9,9 @@ export default createRouter({
             component: Home,
             name: 'Home',
         },
+        {
+            path: '/dashboard',
+            name: 'Dashboard',
+        },
     ],
 })
